@@ -10,26 +10,128 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      UserRole @default(PASSENGER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model SuperAdmin {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  password     String
+  name         String
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  refreshToken String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
+  // Audit fields
+  createdBy String? // System or another super admin
+
+  // Relations
+  admins Admin[]
+
+  @@index([email])
+  @@map("super_admins")
+}
+
+model Admin {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  password     String
+  name         String
+  phone        String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  refreshToken String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Hierarchy
+  createdBy  String // SuperAdmin ID
+  superAdmin SuperAdmin @relation(fields: [createdBy], references: [id])
+
+  // Relations
+  organizations Organization[]
+
+  @@index([email])
+  @@index([createdBy])
+  @@map("admins")
+}
+
+model User {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  password             String
+  name                 String?
+  phone                String?
+  role                 UserRole  @default(PASSENGER) // DRIVER or PASSENGER only
+  isActive             Boolean   @default(true)
+  isEmailVerified      Boolean   @default(false)
+  emailVerifiedAt      DateTime?
+  lastLoginAt          DateTime?
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+  refreshToken         String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Organization relationship (required for drivers)
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+
+  // Relations
+  trips                 Trip[]
+  discountProfile       DiscountProfile?
+  verificationDocuments VerificationDocument[]
+
+  @@index([email])
+  @@index([organizationId])
+  @@index([role])
   @@map("users")
 }
 
-model Vehicle {
-  id           String      @id @default(cuid())
-  plateNumber  String      @unique
-  capacity     Int
-  type         VehicleType
-  status       VehicleStatus @default(INACTIVE)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+model Organization {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  phone         String?
+  address       String?
+  licenseNumber String?   @unique
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  refreshToken  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
+  // Hierarchy
+  createdBy String // Admin ID
+  admin     Admin  @relation(fields: [createdBy], references: [id])
+
+  // Relations
+  users    User[]
+  vehicles Vehicle[]
+
+  @@index([email])
+  @@index([createdBy])
+  @@index([licenseNumber])
+  @@map("organizations")
+}
+
+model Vehicle {
+  id             String        @id @default(cuid())
+  plateNumber    String        @unique
+  capacity       Int
+  type           VehicleType
+  status         VehicleStatus @default(INACTIVE)
+  organizationId String?
+  driverId       String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  trips        Trip[]
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([driverId])
+  @@index([plateNumber])
   @@map("vehicles")
 }
 
@@ -40,17 +142,103 @@ model Route {
   startPoint  String
   endPoint    String
   distance    Float
+  basePrice   Float // Base price for the route
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  trips Trip[]
+
   @@map("routes")
+}
+
+model Trip {
+  id              String        @id @default(cuid())
+  userId          String
+  routeId         String
+  vehicleId       String?
+  startTime       DateTime
+  endTime         DateTime?
+  basePrice       Float
+  discountApplied Float         @default(0)
+  finalPrice      Float
+  discountType    DiscountType?
+  status          TripStatus    @default(ACTIVE)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id])
+  route   Route    @relation(fields: [routeId], references: [id])
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  @@index([userId])
+  @@index([routeId])
+  @@index([vehicleId])
+  @@index([status])
+  @@map("trips")
+}
+
+model DiscountProfile {
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  discountType DiscountType
+
+  // Student-specific fields
+  collegeId   String?
+  collegeName String?
+
+  // Elderly-specific fields  
+  nationalId String?
+
+  // Verification status
+  verificationStatus VerificationStatus @default(PENDING)
+  verifiedAt         DateTime?
+  verifiedBy         String? // Admin who verified
+  rejectionReason    String?
+  expiresAt          DateTime? // When verification expires
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([verificationStatus])
+  @@map("discount_profiles")
+}
+
+model DiscountConfig {
+  id                String       @id @default(cuid())
+  discountType      DiscountType @unique
+  percentage        Float // Discount percentage (e.g., 50 for 50%)
+  maxDiscountAmount Float? // Maximum discount amount in currency
+  isActive          Boolean      @default(true)
+  description       String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@map("discount_configs")
+}
+
+model VerificationDocument {
+  id           String       @id @default(cuid())
+  userId       String
+  documentType DocumentType
+  fileName     String // Original filename
+  filePath     String // Path where file is stored
+  fileSize     Int // File size in bytes
+  mimeType     String // File MIME type
+  uploadedAt   DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([documentType])
+  @@map("verification_documents")
 }
 
 enum UserRole {
   PASSENGER
   DRIVER
-  ADMIN
-  COMPANY
 }
 
 enum VehicleType {
@@ -63,4 +251,34 @@ enum VehicleStatus {
   ACTIVE
   INACTIVE
   MAINTENANCE
+}
+
+enum DiscountType {
+  STUDENT
+  ELDERLY
+  DISABLED
+  NONE
+}
+
+enum TripStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum DocumentType {
+  STUDENT_ID
+  COLLEGE_ID_CARD
+  ENROLLMENT_CERTIFICATE
+  NATIONAL_ID
+  CITIZENSHIP_CERTIFICATE
+  PASSPORT
+  BIRTH_CERTIFICATE
 }

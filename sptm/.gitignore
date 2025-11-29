@@ -220,3 +220,30 @@ web-build/
 *.db
 *.sqlite
 *.sqlite3
+
+# Generated API documentation
+swagger-output.json
+
+# Debug and test files
+debug-*.js
+debug-*.ts
+test-*.js
+test-*.ts
+**/debug-*
+**/test-*
+
+# IDE and editor files
+*.swp
+*.swo
+.vscode/settings.json
+
+# Generated documentation and reports
+**/docs/*-report.json
+**/docs/monitoring-*.json
+**/docs/validation-*.json
+**/docs/example-test-*.json
+
+# Test artifacts
+**/__tests__/**/*.simple.test.*
+**/test-results/
+coverage-reports/
