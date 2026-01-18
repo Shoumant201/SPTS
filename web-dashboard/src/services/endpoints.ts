@@ -1,0 +1,114 @@
+export const API_ENDPOINTS = {
+  // Auth endpoints - Multi-tier authentication
+  AUTH: {
+    // Web dashboard specific endpoints
+    WEB: {
+      // Unified login (auto-detects user type)
+      LOGIN: '/api/auth/web/login',
+      SUPER_ADMIN: {
+        LOGIN: '/api/auth/web/super-admin/login',
+        REFRESH_TOKEN: '/api/auth/web/super-admin/refresh-token',
+        LOGOUT: '/api/auth/web/super-admin/logout',
+      },
+      ADMIN: {
+        LOGIN: '/api/auth/web/admin/login',
+        REFRESH_TOKEN: '/api/auth/web/admin/refresh-token',
+        LOGOUT: '/api/auth/web/admin/logout',
+      },
+      ORGANIZATION: {
+        LOGIN: '/api/auth/web/organization/login',
+        REFRESH_TOKEN: '/api/auth/web/organization/refresh-token',
+        LOGOUT: '/api/auth/web/organization/logout',
+      },
+    },
+    // Legacy/unified endpoints (for backward compatibility)
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    LOGOUT: '/api/auth/logout',
+    ME: '/api/auth/me',
+    PROFILE: '/api/auth/profile',
+    CHANGE_PASSWORD: '/api/auth/change-password',
+    REFRESH_TOKEN: '/api/auth/refresh-token',
+  },
+
+  // Password Reset endpoints
+  PASSWORD_RESET: {
+    REQUEST: '/api/password-reset/request',
+    VALIDATE: (token: string) => `/api/password-reset/validate/${token}`,
+    RESET: '/api/password-reset/reset',
+  },
+
+  // Super Admin Management endpoints
+  SUPER_ADMIN: {
+    ADMINS: {
+      LIST: '/api/super-admin/admins',
+      CREATE: '/api/super-admin/admins',
+      GET_BY_ID: (id: string) => `/api/super-admin/admins/${id}`,
+      UPDATE: (id: string) => `/api/super-admin/admins/${id}`,
+      DELETE: (id: string) => `/api/super-admin/admins/${id}`,
+    },
+    ORGANIZATIONS: {
+      LIST: '/api/super-admin/organizations',
+      CREATE: '/api/super-admin/organizations',
+      GET_BY_ID: (id: string) => `/api/super-admin/organizations/${id}`,
+      UPDATE: (id: string) => `/api/super-admin/organizations/${id}`,
+      DELETE: (id: string) => `/api/super-admin/organizations/${id}`,
+    },
+  },
+
+  // Admin Management endpoints
+  ADMIN: {
+    ORGANIZATIONS: {
+      LIST: '/api/admin/organizations',
+      CREATE: '/api/admin/organizations',
+      GET_BY_ID: (id: string) => `/api/admin/organizations/${id}`,
+      UPDATE: (id: string) => `/api/admin/organizations/${id}`,
+      DELETE: (id: string) => `/api/admin/organizations/${id}`,
+    },
+  },
+  
+  // Organization endpoints (legacy)
+  ORGANIZATIONS: {
+    LIST: '/api/organizations',
+    CREATE: '/api/organizations',
+    GET_BY_ID: (id: string) => `/api/organizations/${id}`,
+    UPDATE: (id: string) => `/api/organizations/${id}`,
+    DELETE: (id: string) => `/api/organizations/${id}`,
+  },
+  
+  // User endpoints
+  USERS: {
+    LIST: '/api/users',
+    CREATE: '/api/users',
+    GET_BY_ID: (id: string) => `/api/users/${id}`,
+    UPDATE: (id: string) => `/api/users/${id}`,
+    DELETE: (id: string) => `/api/users/${id}`,
+  },
+  
+  // Trip endpoints
+  TRIPS: {
+    LIST: '/api/trips',
+    CREATE: '/api/trips',
+    GET_BY_ID: (id: string) => `/api/trips/${id}`,
+    UPDATE: (id: string) => `/api/trips/${id}`,
+    DELETE: (id: string) => `/api/trips/${id}`,
+  },
+  
+  // Vehicle endpoints
+  VEHICLES: {
+    LIST: '/api/vehicles',
+    CREATE: '/api/vehicles',
+    GET_BY_ID: (id: string) => `/api/vehicles/${id}`,
+    UPDATE: (id: string) => `/api/vehicles/${id}`,
+    DELETE: (id: string) => `/api/vehicles/${id}`,
+  },
+  
+  // Route endpoints
+  ROUTES: {
+    LIST: '/api/routes',
+    CREATE: '/api/routes',
+    GET_BY_ID: (id: string) => `/api/routes/${id}`,
+    UPDATE: (id: string) => `/api/routes/${id}`,
+    DELETE: (id: string) => `/api/routes/${id}`,
+  },
+} as const;
