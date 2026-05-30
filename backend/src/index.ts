@@ -39,8 +39,41 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Allow ALL origins for development
-app.use(cors());
+// CORS Configuration - Allow mobile apps and web dashboard
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://spts.onrender.com',
+  // Add your Vercel URL when deployed
+  // 'https://your-app.vercel.app',
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Allow all origins in development
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    // In production, check against allowed origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any origin (for mobile apps)
+    // Mobile apps don't send Origin header
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Seed-Key', 'X-App-Context'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+}));
 
 // Security middleware (after CORS)
 app.use(helmet({

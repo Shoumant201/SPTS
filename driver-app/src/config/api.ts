@@ -3,26 +3,23 @@ import Constants from 'expo-constants';
 
 // Get the backend URL based on environment and platform
 const getBaseUrl = () => {
-  // In Expo development, we can use the manifest to get the correct URL
-  if (__DEV__ && Constants.expoConfig?.hostUri) {
-    // Extract the IP from Expo's hostUri and use our backend port
-    const host = Constants.expoConfig.hostUri.split(':')[0];
-    return `http://${host}:3001`;
-  }
+  // Production backend URL
+  const PRODUCTION_URL = 'https://spts.onrender.com';
   
-  // For web platform, always use localhost
-  if (Platform.OS === 'web') {
-    return 'http://localhost:3001';
-  }
+  // In development, you can use local backend for testing
+  // Uncomment and set your local IP if needed
+  // if (__DEV__ && Constants.expoConfig?.hostUri) {
+  //   const host = Constants.expoConfig.hostUri.split(':')[0];
+  //   return `http://${host}:3001`;
+  // }
   
-  // For production or when hostUri is not available
-  // You should replace this with your actual production API URL
-  return 'http://localhost:3001';
+  // Always use production URL
+  return PRODUCTION_URL;
 };
 
 export const API_CONFIG = {
   BASE_URL: getBaseUrl(),
-  TIMEOUT: 10000,
+  TIMEOUT: 30000, // Increased for production API
   HEADERS: {
     'Content-Type': 'application/json',
     'X-App-Context': 'driver-app',
