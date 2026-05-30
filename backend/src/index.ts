@@ -82,13 +82,25 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// Rate limiting
+// Rate limiting - More generous for dashboard polling
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 500, // Increased from 100 to 500 requests per window
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting for certain endpoints
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    if (req.path === '/health') {
+      return true;
+    }
+    // Skip for authenticated users (they have JWT validation)
+    if (req.headers.authorization) {
+      return true;
+    }
+    return false;
+  },
 });
 
 app.use(limiter);
