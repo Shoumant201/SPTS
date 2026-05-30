@@ -54,7 +54,29 @@ export default function App() {
       const storedUser = await TokenStorageService.getUser();
       
       if (storedUser && storedUser.phone) {
-        // We have local user data, use it directly
+        // Check if the access token is still valid; if expired, try to refresh it first
+        const isExpired = await TokenStorageService.isTokenExpired();
+        if (isExpired) {
+          const tokens = await TokenStorageService.getTokens();
+          if (tokens?.refreshToken) {
+            try {
+              const refreshResp = await phoneAuthApi.refreshToken(tokens.refreshToken);
+              if (refreshResp.accessToken) {
+                await TokenStorageService.updateAccessToken(refreshResp.accessToken, refreshResp.expiresIn);
+              }
+            } catch {
+              // Refresh failed — tokens are dead, force re-login
+              await TokenStorageService.clearTokens();
+              setInitialLoading(false);
+              return;
+            }
+          } else {
+            await TokenStorageService.clearTokens();
+            setInitialLoading(false);
+            return;
+          }
+        }
+
         const userData = {
           id: storedUser.id,
           phone: storedUser.phone,
@@ -96,7 +118,8 @@ export default function App() {
           setHasProfile(true);
         }
       } catch (profileError) {
-        console.log('Profile fetch failed, using stored data if available');
+        console.log('Profile fetch failed, clearing session');
+        await TokenStorageService.clearTokens();
       }
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -110,9 +133,16 @@ export default function App() {
     try {
       const response = await driverProfileApi.getProfile();
       setHasProfile(!!response.driver?.profile);
-    } catch (error) {
-      console.log('Driver profile check failed:', error);
-      setHasProfile(false);
+    } catch (error: any) {
+      const status = error?.response?.status;
+      if (status === 404 || status === undefined) {
+        // No profile exists yet
+        setHasProfile(false);
+      } else {
+        // Auth or server error — don't force profile setup, just proceed
+        console.log('Driver profile check failed with status:', status);
+        setHasProfile(true);
+      }
     }
   };
 

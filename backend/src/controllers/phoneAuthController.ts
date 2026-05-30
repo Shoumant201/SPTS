@@ -150,27 +150,20 @@ export class PhoneAuthController {
         });
       }
 
-      // Generate tokens
-      const accessToken = jwt.sign(
-        { 
-          userId: user.id, 
-          phone: user.phone, 
-          role: user.role 
-        },
-        process.env.JWT_SECRET!,
-        { expiresIn: '7d' } // Longer expiry for mobile apps
-      );
-
-      const refreshToken = jwt.sign(
-        { userId: user.id },
-        process.env.JWT_REFRESH_SECRET!,
-        { expiresIn: '30d' } // Long-lived refresh token
-      );
+      // Generate tokens using the shared JWT utility for consistent format
+      const { generateTokens } = await import('../utils/jwt');
+      const tokens = generateTokens({
+        id: user.id,
+        email: user.email || user.phone,
+        role: user.role,
+        userType: 'USER',
+        organizationId: user.organizationId || undefined,
+      });
 
       // Save refresh token
       await prisma.user.update({
         where: { id: user.id },
-        data: { refreshToken }
+        data: { refreshToken: tokens.refreshToken }
       });
 
       // Return user data without sensitive information
@@ -189,9 +182,9 @@ export class PhoneAuthController {
         message: purpose === 'REGISTRATION' ? 'Registration successful' : 'Login successful',
         user: userData,
         tokens: {
-          accessToken,
-          refreshToken,
-          expiresIn: 604800 // 7 days in seconds
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          expiresIn: 604800
         }
       });
 
@@ -233,7 +226,7 @@ export class PhoneAuthController {
       // Find user with matching refresh token
       const user = await prisma.user.findFirst({
         where: {
-          id: decoded.userId,
+          id: decoded.id || decoded.userId,
           refreshToken: refreshToken
         }
       });
@@ -245,21 +238,20 @@ export class PhoneAuthController {
         });
       }
 
-      // Generate new access token
-      const newAccessToken = jwt.sign(
-        { 
-          userId: user.id, 
-          phone: user.phone, 
-          role: user.role 
-        },
-        process.env.JWT_SECRET!,
-        { expiresIn: '7d' }
-      );
+      // Generate new access token using shared utility
+      const { generateTokens } = await import('../utils/jwt');
+      const newTokens = generateTokens({
+        id: user.id,
+        email: user.email || user.phone,
+        role: user.role,
+        userType: 'USER',
+        organizationId: user.organizationId || undefined,
+      });
 
       res.json({
         success: true,
-        accessToken: newAccessToken,
-        expiresIn: 604800 // 7 days in seconds
+        accessToken: newTokens.accessToken,
+        expiresIn: 604800
       });
 
     } catch (error) {

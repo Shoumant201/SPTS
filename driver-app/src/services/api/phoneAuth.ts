@@ -1,5 +1,6 @@
 import axiosInstance from '../axiosInstance';
 import { getContextualErrorMessage } from '../../utils/errorHandling';
+import { TokenStorageService } from '../tokenStorage';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 
@@ -161,24 +162,14 @@ export const phoneAuthApi = {
   // Logout user
   logout: async (): Promise<{ success: boolean; message: string }> => {
     try {
-      // Get stored device token
-      const { TokenStorageService } = await import('../tokenStorage');
       const tokens = await TokenStorageService.getTokens();
-      
       const deviceToken = tokens?.deviceToken;
       
-      const response = await axiosInstance.post('/api/phone-auth/logout', {
-        deviceToken
-      });
-      
-      // Clear local storage
+      const response = await axiosInstance.post('/api/phone-auth/logout', { deviceToken });
       await TokenStorageService.clearTokens();
-      
       return response.data;
     } catch (error: any) {
-      // Even if logout fails on server, clear local tokens
       try {
-        const { TokenStorageService } = await import('../tokenStorage');
         await TokenStorageService.clearTokens();
       } catch (clearError) {
         console.warn('Failed to clear local tokens:', clearError);
@@ -196,9 +187,6 @@ export const phoneAuthApi = {
         throw new Error('Invalid authentication response');
       }
 
-      const { TokenStorageService } = await import('../tokenStorage');
-      
-      // Store tokens and user data
       await TokenStorageService.storeTokens({
         accessToken: authResponse.tokens.accessToken,
         refreshToken: authResponse.tokens.refreshToken,
@@ -209,11 +197,11 @@ export const phoneAuthApi = {
         name: authResponse.user.name || '',
         role: authResponse.user.role,
         userType: 'USER' as const,
-        email: '', // Not used in phone auth
+        email: '',
         organizationId: authResponse.user.organizationId,
         isActive: true,
         createdAt: authResponse.user.createdAt
-      }, true); // true for phone auth
+      }, true);
     } catch (error) {
       console.error('Error storing phone auth response:', error);
       throw new Error('Failed to store authentication data');

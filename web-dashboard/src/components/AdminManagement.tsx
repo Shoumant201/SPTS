@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { superAdminApi, Admin, CreateAdminData, UpdateAdminData } from '../services/api/management';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AdminFormData {
   email: string;
@@ -47,6 +48,7 @@ const getErrorMessage = (err: any): string => {
 };
 
 export const AdminManagement: React.FC = () => {
+  const { t } = useLanguage();
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -165,8 +167,8 @@ export const AdminManagement: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Admin Management</h2>
-          <p className="text-gray-500">Manage administrator accounts</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('page.adminManagement')}</h2>
+          <p className="text-gray-500 dark:text-gray-400">{t('nav.adminManagement')}</p>
         </div>
         <button
           onClick={openCreateModal}

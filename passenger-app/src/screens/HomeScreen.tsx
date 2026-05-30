@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,24 +7,31 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  Image,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { phoneAuthApi, PhoneUser } from '../services/api/phoneAuth';
+import { PhoneUser } from '../services/api/phoneAuth';
+import { usePassengerLocation } from '../hooks/usePassengerLocation';
+import { useNearbyBuses } from '../hooks/useNearbyBuses';
 
 interface HomeScreenProps {
   user: PhoneUser;
   onLogout: () => void;
+  onNavigate?: (tab: 'home' | 'routes' | 'map' | 'wallet' | 'discounts' | 'profile' | 'trips' | 'account') => void;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ user, onLogout }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ user, onLogout, onNavigate }) => {
   const [destination, setDestination] = useState('');
-  const [nearestBus, setNearestBus] = useState({
-    number: '402',
-    route: 'To Northgate Station',
-    arrivalTime: '4 mins',
-    status: 'RAPID'
+  const { location, updateLocation } = usePassengerLocation();
+  
+  // Fetch nearby buses based on user location
+  const { nearestBus, buses, loading: busesLoading, refresh: refreshBuses } = useNearbyBuses({
+    latitude: location.latitude,
+    longitude: location.longitude,
+    radius: 5,
+    enabled: !location.loading && !location.error,
+    refreshInterval: 30000, // Refresh every 30 seconds
   });
 
   const handleSearch = () => {
@@ -36,23 +43,51 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onLogout }) => {
   };
 
   const handleTapInOut = () => {
-    Alert.alert('Tap In/Out', 'NFC tap functionality will be implemented');
+    if (onNavigate) {
+      onNavigate('wallet');
+    } else {
+      Alert.alert('Tap In/Out', 'NFC tap functionality will be implemented');
+    }
   };
 
   const handleLiveMap = () => {
-    Alert.alert('Live Map', 'Opening live bus tracking map');
+    if (onNavigate) {
+      onNavigate('map');
+    } else {
+      Alert.alert('Live Map', 'Opening live bus tracking map');
+    }
   };
 
   const handleWallet = () => {
-    Alert.alert('Wallet', 'Digital wallet functionality');
+    if (onNavigate) {
+      onNavigate('wallet');
+    } else {
+      Alert.alert('Wallet', 'Digital wallet functionality');
+    }
   };
 
   const handleHistory = () => {
-    Alert.alert('History', 'Trip history and receipts');
+    if (onNavigate) {
+      onNavigate('trips');
+    } else {
+      Alert.alert('History', 'Trip history and receipts');
+    }
+  };
+
+  const handleDiscounts = () => {
+    if (onNavigate) {
+      onNavigate('discounts');
+    } else {
+      Alert.alert('Discounts', 'Apply for student, elderly, or disabled discounts');
+    }
   };
 
   const handleTrackLive = () => {
-    Alert.alert('Track Live', `Tracking Bus ${nearestBus.number} live location`);
+    if (nearestBus) {
+      Alert.alert('Track Live', `Tracking Bus ${nearestBus.route.routeNumber || nearestBus.vehicle.plateNumber} live location`);
+    } else {
+      Alert.alert('No Bus', 'No buses nearby at the moment');
+    }
   };
 
   const QuickActionButton = ({ title, icon, onPress, isPrimary = false }: {
@@ -79,19 +114,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onLogout }) => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.avatar}>
+            <TouchableOpacity
+              style={styles.avatar}
+              onPress={() => onNavigate && onNavigate('profile')}
+            >
               <Text style={styles.avatarText}>
                 {user.name?.charAt(0).toUpperCase() || 'A'}
               </Text>
-            </View>
+            </TouchableOpacity>
             <View>
               <Text style={styles.greeting}>Good morning, {user.name || 'Alex'}</Text>
             </View>
           </View>
-          <View style={styles.location}>
+          <TouchableOpacity 
+            style={styles.location}
+            onPress={updateLocation}
+            disabled={location.loading}
+          >
             <Text style={styles.locationDot}>📍</Text>
-            <Text style={styles.locationText}>Seattle</Text>
-          </View>
+            {location.loading ? (
+              <ActivityIndicator size="small" color="#007AFF" />
+            ) : (
+              <Text style={[
+                styles.locationText,
+                location.error && styles.locationError
+              ]}>
+                {location.city || 'Unknown'}
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Search Bar */}
@@ -129,8 +180,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onLogout }) => {
               onPress={handleWallet}
             />
             <QuickActionButton
-              title="History"
-              icon="🕐"
+              title="Trip History"
+              icon="📜"
               onPress={handleHistory}
             />
           </View>
@@ -138,31 +189,80 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onLogout }) => {
 
         {/* Nearest Bus */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Nearest Bus</Text>
-          <View style={styles.busCard}>
-            <View style={styles.busInfo}>
-              <View style={styles.busHeader}>
-                <View style={styles.arrivalIndicator}>
-                  <View style={styles.arrivalDot} />
-                  <Text style={styles.arrivalText}>Arriving in {nearestBus.arrivalTime}</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Nearest Bus</Text>
+            {buses.length > 0 && (
+              <TouchableOpacity onPress={refreshBuses} disabled={busesLoading}>
+                <Text style={styles.refreshText}>
+                  {busesLoading ? '⟳' : '↻'} Refresh
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          
+          {busesLoading && buses.length === 0 ? (
+            <View style={styles.busCard}>
+              <ActivityIndicator size="large" color="#007AFF" />
+              <Text style={styles.loadingText}>Finding nearby buses...</Text>
+            </View>
+          ) : nearestBus ? (
+            <View style={styles.busCard}>
+              <View style={styles.busInfo}>
+                <View style={styles.busHeader}>
+                  <View style={styles.arrivalIndicator}>
+                    <View style={styles.arrivalDot} />
+                    <Text style={styles.arrivalText}>
+                      Arriving in {nearestBus.etaText}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.busDetails}>
+                  <Text style={styles.busNumber}>
+                    Bus {nearestBus.route.routeNumber || nearestBus.vehicle.plateNumber}
+                  </Text>
+                  <Text style={styles.busStatus}>
+                    {nearestBus.vehicle.type}
+                  </Text>
+                </View>
+                <Text style={styles.busRoute}>
+                  {nearestBus.route.name}
+                </Text>
+                <Text style={styles.busDistance}>
+                  {nearestBus.distance.toFixed(1)} km away
+                </Text>
+                <TouchableOpacity style={styles.trackButton} onPress={handleTrackLive}>
+                  <Text style={styles.trackIcon}>📍</Text>
+                  <Text style={styles.trackText}>Track Live</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.busMap}>
+                <View style={styles.mapPlaceholder}>
+                  <Text style={styles.mapText}>🗺️</Text>
+                  <Text style={styles.mapSubtext}>{buses.length}</Text>
+                  <Text style={styles.mapLabel}>nearby</Text>
                 </View>
               </View>
-              <View style={styles.busDetails}>
-                <Text style={styles.busNumber}>Bus {nearestBus.number}</Text>
-                <Text style={styles.busStatus}>{nearestBus.status}</Text>
-              </View>
-              <Text style={styles.busRoute}>{nearestBus.route}</Text>
-              <TouchableOpacity style={styles.trackButton} onPress={handleTrackLive}>
-                <Text style={styles.trackIcon}>📍</Text>
-                <Text style={styles.trackText}>Track Live</Text>
-              </TouchableOpacity>
             </View>
-            <View style={styles.busMap}>
-              <View style={styles.mapPlaceholder}>
-                <Text style={styles.mapText}>🗺️</Text>
+          ) : (
+            <View style={styles.busCard}>
+              <View style={styles.noBusContainer}>
+                <Text style={styles.noBusIcon}>🚌</Text>
+                <Text style={styles.noBusText}>No buses nearby</Text>
+                <Text style={styles.noBusSubtext}>
+                  Try expanding your search radius or check back later
+                </Text>
+                <TouchableOpacity 
+                  style={styles.retryButton} 
+                  onPress={refreshBuses}
+                  disabled={busesLoading}
+                >
+                  <Text style={styles.retryButtonText}>
+                    {busesLoading ? 'Searching...' : 'Search Again'}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
-          </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -221,6 +321,9 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '500',
   },
+  locationError: {
+    color: '#f44336',
+  },
   searchContainer: {
     paddingHorizontal: 20,
     marginBottom: 24,
@@ -252,11 +355,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 24,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1a1a1a',
-    marginBottom: 16,
+  },
+  refreshText: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '500',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
   },
   quickActions: {
     flexDirection: 'row',
@@ -362,6 +481,11 @@ const styles = StyleSheet.create({
   busRoute: {
     fontSize: 14,
     color: '#666',
+    marginBottom: 8,
+  },
+  busDistance: {
+    fontSize: 12,
+    color: '#999',
     marginBottom: 16,
   },
   trackButton: {
@@ -396,6 +520,49 @@ const styles = StyleSheet.create({
   },
   mapText: {
     fontSize: 24,
+  },
+  mapSubtext: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1976d2',
+    marginTop: 4,
+  },
+  mapLabel: {
+    fontSize: 10,
+    color: '#666',
+  },
+  noBusContainer: {
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  noBusIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+    opacity: 0.5,
+  },
+  noBusText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 8,
+  },
+  noBusSubtext: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  retryButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

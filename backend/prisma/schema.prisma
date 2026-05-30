@@ -79,11 +79,22 @@ model User {
 
   // Relations
   trips                 Trip[]
+  driverTrips           Trip[]                      @relation("DriverTrips")
   discountProfile       DiscountProfile?
   verificationDocuments VerificationDocument[]
   otpCodes              OtpCode[]
   driverProfile         DriverProfile?
   sentJoinRequests      OrganizationDriverRequest[] @relation("DriverRequests")
+  assignments           BusAssignment[]             @relation("DriverAssignments")
+  driverLocation        DriverLocation?
+  incidentReports       IncidentReport[]            @relation("DriverIncidents")
+  wallet                Wallet?
+  walletTransactions    WalletTransaction[]
+  driverTransactions    WalletTransaction[]         @relation("DriverTransactions")
+  tapSessions           TapSession[]
+  driverTapSessions     TapSession[]                @relation("DriverTapSessions")
+  discountApplications  DiscountApplication[]
+  reviewedApplications  DiscountApplication[]       @relation("ReviewedApplications")
 
   @@index([phone])
   @@index([email])
@@ -160,7 +171,10 @@ model Organization {
   // Relations
   users         User[]
   vehicles      Vehicle[]
+  routes        Route[]
   driverRequests OrganizationDriverRequest[]
+  assignments   BusAssignment[]
+  incidents     IncidentReport[]
 
   @@index([email])
   @@index([createdBy])
@@ -174,6 +188,8 @@ model Vehicle {
   capacity       Int
   type           VehicleType
   status         VehicleStatus @default(INACTIVE)
+  model          String?       // e.g., "Tata LP 713"
+  year           Int?          // Manufacturing year
   organizationId String?
   driverId       String?
   createdAt      DateTime      @default(now())
@@ -181,6 +197,11 @@ model Vehicle {
 
   trips        Trip[]
   organization Organization? @relation(fields: [organizationId], references: [id])
+  iotDevice    IoTDevice?
+  assignments  BusAssignment[]
+  incidents    IncidentReport[]
+  walletTransactions WalletTransaction[]
+  tapSessions  TapSession[]
 
   @@index([organizationId])
   @@index([driverId])
@@ -188,45 +209,110 @@ model Vehicle {
   @@map("vehicles")
 }
 
+model IoTDevice {
+  id           String          @id @default(cuid())
+  deviceId     String          @unique  // Serial number from hardware (manually entered)
+  deviceToken  String          @unique  // Auto-generated secret for device auth
+  vehicleId    String          @unique  // One device per vehicle
+  status       IoTDeviceStatus @default(INACTIVE)
+  lastSeenAt   DateTime?       // Last time device sent data
+  passengerCount Int           @default(0) // Latest passenger count from sensor
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@index([vehicleId])
+  @@map("iot_devices")
+}
+
+enum IoTDeviceStatus {
+  ACTIVE
+  INACTIVE
+  OFFLINE
+}
+
 model Route {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  startPoint  String
-  endPoint    String
-  distance    Float
-  basePrice   Float // Base price for the route
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String      @id @default(cuid())
+  name         String
+  routeNumber  String?     // e.g., "42", "B-7"
+  description  String?
+  startPoint   String
+  endPoint     String
+  distance     Float       // in km
+  basePrice    Float
+  isActive     Boolean     @default(true)
+  organizationId String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
-  trips Trip[]
+  stops        RouteStop[]
+  trips        Trip[]
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  assignments  BusAssignment[]
+  incidents    IncidentReport[]
+  walletTransactions WalletTransaction[]
+  tapSessions  TapSession[]
 
+  @@index([organizationId])
   @@map("routes")
 }
 
-model Trip {
-  id              String        @id @default(cuid())
-  userId          String
-  routeId         String
-  vehicleId       String?
-  startTime       DateTime
-  endTime         DateTime?
-  basePrice       Float
-  discountApplied Float         @default(0)
-  finalPrice      Float
-  discountType    DiscountType?
-  status          TripStatus    @default(ACTIVE)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+model RouteStop {
+  id        String   @id @default(cuid())
+  routeId   String
+  name      String   // Stop name e.g. "Ratnapark"
+  lat       Float    // GPS latitude
+  lng       Float    // GPS longitude
+  order     Int      // Stop sequence (1, 2, 3...)
+  createdAt DateTime @default(now())
 
-  user    User     @relation(fields: [userId], references: [id])
-  route   Route    @relation(fields: [routeId], references: [id])
-  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
+  route Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@index([routeId])
+  @@map("route_stops")
+}
+
+model Trip {
+  id                   String        @id @default(cuid())
+  userId               String
+  routeId              String
+  vehicleId            String?
+  driverId             String?
+  assignmentId         String?
+  startTime            DateTime
+  endTime              DateTime?
+  startLocation        String?
+  endLocation          String?
+  distance             Float?        // in km
+  duration             Int?          // in minutes
+  basePrice            Float
+  discountApplied      Float         @default(0)
+  finalPrice           Float
+  driverEarnings       Float?        // Driver's share
+  organizationRevenue  Float?        // Organization's share
+  passengerCount       Int           @default(0)
+  discountType         DiscountType?
+  status               TripStatus    @default(ACTIVE)
+  notes                String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  user       User           @relation(fields: [userId], references: [id])
+  route      Route          @relation(fields: [routeId], references: [id])
+  vehicle    Vehicle?       @relation(fields: [vehicleId], references: [id])
+  driver     User?          @relation("DriverTrips", fields: [driverId], references: [id])
+  assignment BusAssignment? @relation(fields: [assignmentId], references: [id])
+  walletTransactions WalletTransaction[]
 
   @@index([userId])
   @@index([routeId])
   @@index([vehicleId])
+  @@index([driverId])
+  @@index([assignmentId])
   @@index([status])
+  @@index([startTime])
   @@map("trips")
 }
 
@@ -364,6 +450,39 @@ enum OtpPurpose {
   PHONE_VERIFICATION
 }
 
+model BusAssignment {
+  id             String           @id @default(cuid())
+  organizationId String
+  vehicleId      String
+  driverId       String
+  routeId        String
+  departureTime  String           // e.g. "07:30"
+  days           String[]         // e.g. ["MON","TUE","WED","THU","FRI"]
+  status         AssignmentStatus @default(ACTIVE)
+  notes          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  vehicle      Vehicle      @relation(fields: [vehicleId], references: [id])
+  driver       User         @relation("DriverAssignments", fields: [driverId], references: [id])
+  route        Route        @relation(fields: [routeId], references: [id])
+  incidents    IncidentReport[]
+  trips        Trip[]
+
+  @@index([organizationId])
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([routeId])
+  @@map("bus_assignments")
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  SUSPENDED
+  COMPLETED
+}
+
 enum JoinRequestStatus {
   PENDING
   ACCEPTED
@@ -396,6 +515,25 @@ model ValidDriverLicense {
   @@map("valid_driver_licenses")
 }
 
+model DriverLocation {
+  id         String   @id @default(cuid())
+  driverId   String   @unique
+  latitude   Float
+  longitude  Float
+  accuracy   Float?
+  heading    Float?
+  speed      Float?
+  isOnShift  Boolean  @default(true)
+  recordedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  driver User @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([driverId])
+  @@index([isOnShift])
+  @@map("driver_locations")
+}
+
 model PasswordResetToken {
   id        String   @id @default(cuid())
   email     String
@@ -410,4 +548,216 @@ model PasswordResetToken {
   @@index([token])
   @@index([expiresAt])
   @@map("password_reset_tokens")
+}
+
+model IncidentReport {
+  id                  String           @id @default(cuid())
+  type                IncidentType
+  severity            IncidentSeverity @default(MEDIUM)
+  status              IncidentStatus   @default(REPORTED)
+  title               String
+  description         String
+  location            String?
+  latitude            Float?
+  longitude           Float?
+  driverId            String
+  vehicleId           String?
+  routeId             String?
+  assignmentId        String?
+  organizationId      String
+  reportedAt          DateTime         @default(now())
+  acknowledgedAt      DateTime?
+  acknowledgedBy      String?
+  resolvedAt          DateTime?
+  resolvedBy          String?
+  resolutionNotes     String?
+  estimatedDelay      Int?             // in minutes
+  affectedPassengers  Int?
+  requiresAssistance  Boolean          @default(false)
+  isEmergency         Boolean          @default(false)
+  attachments         String[]         // URLs to photos/documents
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  driver       User          @relation("DriverIncidents", fields: [driverId], references: [id])
+  vehicle      Vehicle?      @relation(fields: [vehicleId], references: [id])
+  route        Route?        @relation(fields: [routeId], references: [id])
+  assignment   BusAssignment? @relation(fields: [assignmentId], references: [id])
+  organization Organization  @relation(fields: [organizationId], references: [id])
+
+  @@index([driverId])
+  @@index([vehicleId])
+  @@index([routeId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([type])
+  @@index([severity])
+  @@index([reportedAt])
+  @@map("incident_reports")
+}
+
+enum IncidentType {
+  BREAKDOWN
+  ACCIDENT
+  DELAY
+  TRAFFIC
+  WEATHER
+  MEDICAL
+  OTHER
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  REPORTED
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TransactionType {
+  TAP_IN
+  TAP_OUT
+  TOP_UP
+  REFUND
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model Wallet {
+  id           String              @id @default(cuid())
+  userId       String              @unique
+  balance      Float               @default(0)
+  currency     String              @default("NPR")
+  isActive     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+
+  @@index([userId])
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id                  String            @id @default(cuid())
+  walletId            String
+  userId              String
+  type                TransactionType
+  amount              Float
+  balanceBefore       Float
+  balanceAfter        Float
+  status              TransactionStatus @default(PENDING)
+  description         String?
+  metadata            Json?
+  tripId              String?
+  routeId             String?
+  vehicleId           String?
+  driverId            String?
+  tapInTransactionId  String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  wallet              Wallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trip                Trip?             @relation(fields: [tripId], references: [id], onDelete: SetNull)
+  route               Route?            @relation(fields: [routeId], references: [id], onDelete: SetNull)
+  vehicle             Vehicle?          @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  driver              User?             @relation("DriverTransactions", fields: [driverId], references: [id], onDelete: SetNull)
+  tapInSessions       TapSession[]      @relation("TapInTransaction")
+  tapOutSessions      TapSession[]      @relation("TapOutTransaction")
+
+  @@index([walletId])
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("wallet_transactions")
+}
+
+model TapSession {
+  id                   String             @id @default(cuid())
+  userId               String
+  routeId              String
+  vehicleId            String?
+  driverId             String?
+  tapInTransactionId   String
+  tapOutTransactionId  String?
+  tapInLocation        String?
+  tapOutLocation       String?
+  tapInLatitude        Float?
+  tapInLongitude       Float?
+  tapOutLatitude       Float?
+  tapOutLongitude      Float?
+  estimatedFare        Float
+  actualFare           Float?
+  distance             Float?
+  duration             Int?
+  status               String             @default("ACTIVE")
+  tapInAt              DateTime           @default(now())
+  tapOutAt             DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  route                Route              @relation(fields: [routeId], references: [id])
+  vehicle              Vehicle?           @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  driver               User?              @relation("DriverTapSessions", fields: [driverId], references: [id], onDelete: SetNull)
+  tapInTransaction     WalletTransaction  @relation("TapInTransaction", fields: [tapInTransactionId], references: [id])
+  tapOutTransaction    WalletTransaction? @relation("TapOutTransaction", fields: [tapOutTransactionId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([tapInAt])
+  @@map("tap_sessions")
+}
+
+model DiscountApplication {
+  id                 String         @id @default(cuid())
+  userId             String
+  type               DiscountType
+  status             DiscountStatus @default(PENDING)
+  discountPercentage Float          @default(0)
+  documentUrl        String?
+  documentType       String?
+  idNumber           String?
+  institutionName    String?
+  expiryDate         DateTime?
+  reason             String?
+  reviewedBy         String?
+  reviewedAt         DateTime?
+  reviewNotes        String?
+  appliedAt          DateTime       @default(now())
+  approvedAt         DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("ReviewedApplications", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+  @@map("discount_applications")
+}
+
+enum DiscountStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  SUSPENDED
 }

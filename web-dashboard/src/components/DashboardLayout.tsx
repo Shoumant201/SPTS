@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, UserType } from '../services/api/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -157,6 +157,38 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const { t, language, setLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
+  const [pendingRequestCount, setPendingRequestCount] = useState(0);
+
+  // Poll for pending join requests (org only) — only when tab is visible
+  useEffect(() => {
+    if (user.userType !== 'ORGANIZATION') return;
+
+    const INTERVAL = 120000; // 2 minutes — sidebar badge doesn't need to be instant
+
+    const fetchPending = async () => {
+      if (document.visibilityState !== 'visible') return;
+      try {
+        const axiosInstance = (await import('../services/axiosInstance')).default;
+        const res = await axiosInstance.get('/api/driver-management/organization/requests?status=PENDING');
+        setPendingRequestCount(res.data.count || 0);
+      } catch {
+        // silently fail
+      }
+    };
+
+    fetchPending();
+    const interval = setInterval(fetchPending, INTERVAL);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') fetchPending();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [user.userType]);
 
   const filteredMenuItems = menuItems.filter(item => 
     item.roles.includes(user.userType as UserType)
@@ -214,7 +246,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               }`}
             >
               {item.icon}
-              {t(item.label)}
+              <span className="flex-1 text-left">{t(item.label)}</span>
+              {item.id === 'drivers' && pendingRequestCount > 0 && (
+                <span className="bg-orange-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {pendingRequestCount > 9 ? '9+' : pendingRequestCount}
+                </span>
+              )}
             </button>
           ))}
         </nav>

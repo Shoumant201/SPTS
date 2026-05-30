@@ -1,12 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { SafeAsyncStorage } from '../utils/safeAsyncStorage';
-import { API_CONFIG } from '../config/api';
+import { API_CONFIG, getBaseUrl } from '../config/api';
 
-const BASE_URL = API_CONFIG.BASE_URL;
-
-// Create axios instance
+// Create axios instance with dynamic baseURL
 const axiosInstance = axios.create({
-  baseURL: BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
   headers: API_CONFIG.HEADERS,
 });
@@ -68,9 +65,12 @@ const clearTokens = async () => {
   }
 };
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and update baseURL
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
+    // Always use the latest baseURL (supports network changes)
+    config.baseURL = getBaseUrl();
+    
     try {
       const { accessToken } = await getTokens();
       if (accessToken) {
@@ -119,8 +119,8 @@ axiosInstance.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        // Use phone auth refresh endpoint
-        const response = await axios.post(`${BASE_URL}/api/phone-auth/refresh-token`, {
+        // Use phone auth refresh endpoint with dynamic baseURL
+        const response = await axios.post(`${getBaseUrl()}/api/phone-auth/refresh-token`, {
           refreshToken
         });
         

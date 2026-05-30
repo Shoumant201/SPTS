@@ -89,11 +89,11 @@ async function seedLicenses() {
     dateOfBirth.setMonth(Math.floor(Math.random() * 12));
     dateOfBirth.setDate(Math.floor(Math.random() * 28) + 1);
 
-    // Issue date (1-5 years ago)
+    // Issue date (1-3 years ago)
     const issueDate = new Date();
-    issueDate.setFullYear(issueDate.getFullYear() - (1 + Math.floor(Math.random() * 5)));
+    issueDate.setFullYear(issueDate.getFullYear() - (1 + Math.floor(Math.random() * 3)));
 
-    // Expiry date (5 years from issue date)
+    // Expiry date (5 years from issue date, always in the future)
     const expiryDate = new Date(issueDate);
     expiryDate.setFullYear(expiryDate.getFullYear() + 5);
 
@@ -117,7 +117,7 @@ async function seedLicenses() {
       fullName: 'Test Driver One',
       dateOfBirth: new Date('1990-01-15'),
       issueDate: new Date('2020-01-01'),
-      expiryDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
       licenseType: 'B',
       bloodGroup: 'O+',
       address: 'Kathmandu-1, Bagmati Pradesh',
@@ -139,7 +139,7 @@ async function seedLicenses() {
       fullName: 'Test Driver Three',
       dateOfBirth: new Date('1988-12-10'),
       issueDate: new Date('2019-06-01'),
-      expiryDate: new Date('2024-06-01'),
+      expiryDate: new Date('2027-06-01'),
       licenseType: 'D',
       bloodGroup: 'B+',
       address: 'Biratnagar-10, Koshi Pradesh',

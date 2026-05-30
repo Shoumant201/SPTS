@@ -8,13 +8,19 @@ import {
 } from 'react-native';
 import { PhoneUser } from '../services/api/phoneAuth';
 import HomeScreen from '../screens/HomeScreen';
+import RoutesScreen from '../screens/routes/RoutesScreen';
+import LiveBusMapScreen from '../screens/tracking/LiveBusMapScreen';
+import WalletScreen from '../screens/wallet/WalletScreen';
+import DiscountsScreen from '../screens/discounts/DiscountsScreen';
+import ProfileScreen from '../screens/profile/ProfileScreen';
+import TripHistoryScreen from '../screens/trips/TripHistoryScreen';
 
 interface TabNavigatorProps {
   user: PhoneUser;
   onLogout: () => void;
 }
 
-type TabType = 'home' | 'routes' | 'tickets' | 'account';
+type TabType = 'home' | 'routes' | 'map' | 'wallet' | 'discounts' | 'profile' | 'trips' | 'account';
 
 const TabNavigator: React.FC<TabNavigatorProps> = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -25,17 +31,13 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ user, onLogout }) => {
         'Account',
         'What would you like to do?',
         [
-          { text: 'View Profile', onPress: () => Alert.alert('Profile', 'Profile screen coming soon') },
-          { text: 'Settings', onPress: () => Alert.alert('Settings', 'Settings screen coming soon') },
+          { text: 'Profile & Settings', onPress: () => setActiveTab('profile') },
+          { text: 'Trip History', onPress: () => setActiveTab('trips') },
+          { text: 'Discounts', onPress: () => setActiveTab('discounts') },
           { text: 'Logout', onPress: onLogout, style: 'destructive' },
           { text: 'Cancel', style: 'cancel' }
         ]
       );
-      return;
-    }
-    
-    if (tab !== 'home') {
-      Alert.alert('Coming Soon', `${tab.charAt(0).toUpperCase() + tab.slice(1)} feature will be available soon`);
       return;
     }
     
@@ -45,9 +47,21 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ user, onLogout }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeScreen user={user} onLogout={onLogout} />;
+        return <HomeScreen user={user} onLogout={onLogout} onNavigate={setActiveTab} />;
+      case 'routes':
+        return <RoutesScreen />;
+      case 'map':
+        return <LiveBusMapScreen />;
+      case 'wallet':
+        return <WalletScreen />;
+      case 'discounts':
+        return <DiscountsScreen />;
+      case 'profile':
+        return <ProfileScreen user={user} onLogout={onLogout} onBack={() => setActiveTab('home')} />;
+      case 'trips':
+        return <TripHistoryScreen />;
       default:
-        return <HomeScreen user={user} onLogout={onLogout} />;
+        return <HomeScreen user={user} onLogout={onLogout} onNavigate={setActiveTab} />;
     }
   };
 
@@ -81,11 +95,21 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ user, onLogout }) => {
         
         <TouchableOpacity 
           style={styles.navItem} 
-          onPress={() => handleTabPress('tickets')}
+          onPress={() => handleTabPress('map')}
         >
-          <Text style={styles.navIcon}>🎫</Text>
-          <Text style={[styles.navText, activeTab === 'tickets' && styles.navTextActive]}>
-            Tickets
+          <Text style={styles.navIcon}>🗺️</Text>
+          <Text style={[styles.navText, activeTab === 'map' && styles.navTextActive]}>
+            Live Map
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navItem} 
+          onPress={() => handleTabPress('wallet')}
+        >
+          <Text style={styles.navIcon}>💳</Text>
+          <Text style={[styles.navText, activeTab === 'wallet' && styles.navTextActive]}>
+            Wallet
           </Text>
         </TouchableOpacity>
         

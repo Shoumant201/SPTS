@@ -17,14 +17,21 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "newArchEnabled": false
+      "newArchEnabled": false,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "SPTM needs your location to show nearby buses and provide accurate arrival times."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "newArchEnabled": false
+      "newArchEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,6 +40,10 @@
     "experiments": {
       "turboModules": false,
       "newArchEnabled": false
+    },
+    "updates": {
+      "enabled": false,
+      "fallbackToCacheTimeout": 0
     }
   }
 }

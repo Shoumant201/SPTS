@@ -111,4 +111,9 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/api/routes/${id}`,
     DELETE: (id: string) => `/api/routes/${id}`,
   },
+
+  // Live GPS location
+  LOCATION: {
+    LIVE: '/api/location/live',
+  },
 } as const;

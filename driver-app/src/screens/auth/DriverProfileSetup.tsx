@@ -57,14 +57,20 @@ export const DriverProfileSetup: React.FC<DriverProfileSetupProps> = ({ onComple
   };
 
   const validateLicense = async () => {
-    if (!licenseNumber || licenseNumber.length < 17) {
-      Alert.alert('Error', 'Please enter a valid license number (XX-XX-XXXX-XXXXX)');
+    console.log('🔍 License number:', licenseNumber);
+    console.log('🔍 License length:', licenseNumber.length);
+    
+    // Format is XX-XX-XXXX-XXXXX = 16 characters (not 17)
+    if (!licenseNumber || licenseNumber.length < 16) {
+      Alert.alert('Error', `Please enter a valid license number (XX-XX-XXXX-XXXXX)\n\nCurrent: "${licenseNumber}"\nLength: ${licenseNumber.length}/16`);
       return;
     }
 
     try {
       setValidating(true);
+      console.log('🔍 Validating license:', licenseNumber);
       const response = await driverProfileApi.validateLicense(licenseNumber);
+      console.log('✅ Validation response:', response);
 
       if (response.isValid && response.licenseData) {
         setLicenseData(response.licenseData);
@@ -72,12 +78,16 @@ export const DriverProfileSetup: React.FC<DriverProfileSetupProps> = ({ onComple
         setStep('details');
         Alert.alert('Success', 'License validated successfully!');
       } else {
+        console.log('❌ License invalid:', response.error);
         Alert.alert('Invalid License', response.error || 'License not found in government database');
       }
     } catch (error: any) {
+      console.error('❌ Validation error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       Alert.alert(
         'Validation Failed',
-        error.response?.data?.error || 'Failed to validate license. Please try again.'
+        error.response?.data?.error || error.message || 'Failed to validate license. Please try again.'
       );
     } finally {
       setValidating(false);
@@ -144,7 +154,7 @@ export const DriverProfileSetup: React.FC<DriverProfileSetupProps> = ({ onComple
             onChangeText={handleLicenseInput}
             placeholder="01-01-2020-00001"
             keyboardType="number-pad"
-            maxLength={17}
+            maxLength={16}
             autoCapitalize="characters"
           />
 

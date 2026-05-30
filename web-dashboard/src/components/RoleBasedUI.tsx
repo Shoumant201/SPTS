@@ -11,6 +11,10 @@ import {
 import { AdminManagement } from './AdminManagement';
 import { OrganizationManagement } from './OrganizationManagement';
 import { DriverManagement } from './DriverManagement';
+import { FleetManagement } from './FleetManagement';
+import { RouteManagement } from './RouteManagement';
+import { ScheduleManagement } from './ScheduleManagement';
+import { ReportsPage } from './ReportsPage';
 import { ProfilePage } from './ProfilePage';
 import { SettingsPage } from './SettingsPage';
 
@@ -21,59 +25,35 @@ interface RoleBasedUIProps {
 
 // Placeholder components for menus that don't exist yet
 const PlaceholderPage: React.FC<{ title: string; description: string }> = ({ title, description }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+  <div className="bg-white dark:bg-dark-800 rounded-xl shadow-sm border border-gray-100 dark:border-dark-700 p-8">
     <div className="text-center max-w-md mx-auto">
-      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="w-16 h-16 bg-gray-100 dark:bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4">
         <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
       </div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">{title}</h2>
-      <p className="text-gray-500">{description}</p>
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{title}</h2>
+      <p className="text-gray-500 dark:text-gray-400">{description}</p>
     </div>
   </div>
 );
 
-const FleetManagement: React.FC = () => (
-  <PlaceholderPage 
-    title="Fleet Management" 
-    description="Manage your vehicle fleet, track maintenance schedules, and monitor vehicle status. This feature is coming soon."
-  />
-);
 
-const RoutesManagement: React.FC = () => (
-  <PlaceholderPage 
-    title="Routes Management" 
-    description="Create and manage transit routes, set schedules, and optimize route efficiency. This feature is coming soon."
-  />
-);
 
-const SchedulesManagement: React.FC = () => (
-  <PlaceholderPage 
-    title="Schedules Management" 
-    description="Manage driver schedules, shift assignments, and time tracking. This feature is coming soon."
-  />
-);
+
 
 const DriversManagement: React.FC = () => (
-  <PlaceholderPage 
-    title="Drivers Management" 
-    description="Manage driver profiles, assignments, and performance tracking. This feature is coming soon."
-  />
-);
-
-const ReportsPage: React.FC = () => (
-  <PlaceholderPage 
-    title="Reports & Analytics" 
-    description="Generate detailed reports on fleet performance, revenue, and operational metrics. This feature is coming soon."
+  <PlaceholderPage
+    title="Drivers Management"
+    description="Manage driver profiles, assignments, and performance tracking."
   />
 );
 
 const SettingsPageComponent: React.FC = () => <SettingsPage />;
 
 const SupportPage: React.FC = () => (
-  <PlaceholderPage 
-    title="Support Center" 
+  <PlaceholderPage
+    title="Support Center"
     description="Get help with the system, view documentation, and contact support. This feature is coming soon."
   />
 );
@@ -102,9 +82,9 @@ export const RoleBasedUI: React.FC<RoleBasedUIProps> = ({ user, children }) => {
       case 'fleet':
         return <FleetManagement />;
       case 'routes':
-        return <RoutesManagement />;
+        return <RouteManagement userType={user.userType} />;
       case 'schedules':
-        return <SchedulesManagement />;
+        return <ScheduleManagement />;
       case 'drivers':
         return <DriverManagement />;
       case 'reports':

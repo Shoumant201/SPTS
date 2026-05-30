@@ -17,6 +17,16 @@ import organizationRoutes from './routes/organizationRoutes';
 import passwordResetRoutes from './routes/passwordResetRoutes';
 import profileRoutes from './routes/profileRoutes';
 import driverManagementRoutes from './routes/driverManagementRoutes';
+import fleetRoutes from './routes/fleetRoutes';
+import routeManagementRoutes from './routes/routeManagementRoutes';
+import assignmentRoutes from './routes/assignmentRoutes';
+import analyticsRoutes from './routes/analyticsRoutes';
+import locationRoutes from './routes/locationRoutes';
+import incidentRoutes from './routes/incidentRoutes';
+import tripRoutes from './routes/tripRoutes';
+import busRoutes from './routes/busRoutes';
+import walletRoutes from './routes/walletRoutes';
+import discountRoutes from './routes/discountRoutes';
 
 // Import Swagger configuration
 import { swaggerConfig, getEnvironmentConfig } from './config/swagger';
@@ -190,6 +200,46 @@ app.use('/api/phone-auth', phoneAuthRoutes);
 
 // Driver management routes
 app.use('/api/driver-management', driverManagementRoutes);
+
+// Fleet management routes
+app.use('/api/fleet', fleetRoutes);
+
+// Route management routes
+app.use('/api/routes', routeManagementRoutes);
+
+// Bus assignment / schedule routes
+app.use('/api/assignments', assignmentRoutes);
+
+// Analytics routes
+app.use('/api/analytics', analyticsRoutes);
+
+// Driver GPS location routes
+app.use('/api/location', locationRoutes);
+
+// Incident reporting routes
+app.use('/api/incidents', incidentRoutes);
+
+// Trip management routes
+app.use('/api/trips', tripRoutes);
+
+// Bus tracking routes (public - no auth required for nearby buses)
+app.use('/api/buses', busRoutes);
+
+// Wallet and tap system routes
+app.use('/api/wallet', walletRoutes);
+
+// Discount system routes
+app.use('/api/discounts', discountRoutes);
+
+// IoT device data endpoint (no user auth — uses device token)
+app.post('/api/iot/:deviceId/data', async (req: any, res: any) => {
+  try {
+    const { FleetController } = await import('./controllers/fleetController');
+    return FleetController.updateIoTData(req, res);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
 
 // Password reset routes (public - no auth required)
 app.use('/api/password-reset', passwordResetRoutes);

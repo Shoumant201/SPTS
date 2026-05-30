@@ -14,6 +14,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:licenses": "tsx prisma/seed-licenses.ts",
     "db:reset": "prisma migrate reset --force",
     "db:validate": "tsx prisma/validate-migration.ts",
     "db:test-connection": "tsx -e \"import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); prisma.\\$connect().then(() => { console.log('Database connection successful'); process.exit(0); }).catch((e) => { console.error('Database connection failed:', e); process.exit(1); });\"",

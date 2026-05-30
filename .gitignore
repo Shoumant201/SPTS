@@ -249,3 +249,21 @@ test-*.ts
 coverage-reports/
 
 .kiro
+
+# Documentation files (project-specific)
+*.md
+!README.md
+!backend/README.md
+!passenger-app/README.md
+!driver-app/README.md
+!web-dashboard/README.md
+!ml-service/README.md
+!backend/prisma/README.md
+!backend/docs/README.md
+!backend/prisma/MIGRATION_GUIDE.md
+!backend/DEPLOYMENT_CHECKLIST.md
+
+# Scripts
+*.sh
+!backend/scripts/run-migration.sh
+!ml-service/setup.sh

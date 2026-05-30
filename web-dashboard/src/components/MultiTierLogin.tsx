@@ -44,8 +44,8 @@ export const MultiTierLogin: React.FC<MultiTierLoginProps> = ({ onSuccess }) => 
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden flex">
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden flex">
         {/* Left Panel - Branding */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-500 to-blue-600 p-12 flex-col justify-between relative overflow-hidden">
           {/* Background Pattern */}

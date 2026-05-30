@@ -30,8 +30,8 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-gray-100 dark:bg-dark-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-8">
           <div className="text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,8 +58,8 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-dark-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

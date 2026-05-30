@@ -94,6 +94,108 @@ const translations = {
     'theme.dark': 'Dark',
     'language.english': 'English',
     'language.nepali': 'नेपाली',
+
+    // Page titles
+    'page.fleetManagement': 'Fleet Management',
+    'page.routeManagement': 'Route Management',
+    'page.scheduleManagement': 'Bus Assignments & Schedules',
+    'page.driverManagement': 'Driver Management',
+    'page.adminManagement': 'Admin Management',
+    'page.orgManagement': 'Organization Management',
+    'page.reports': 'Reports & Analytics',
+
+    // Fleet
+    'fleet.addVehicle': 'Add Vehicle',
+    'fleet.plateNumber': 'Plate Number',
+    'fleet.vehicleType': 'Vehicle Type',
+    'fleet.capacity': 'Capacity',
+    'fleet.status': 'Status',
+    'fleet.iotDevice': 'IoT Device',
+    'fleet.passengers': 'Passengers',
+
+    // Common actions
+    'action.create': 'Create',
+    'action.edit': 'Edit',
+    'action.delete': 'Delete',
+    'action.search': 'Search',
+    'action.invite': 'Invite',
+    'action.accept': 'Accept',
+    'action.reject': 'Reject',
+    'action.cancel': 'Cancel',
+    'action.save': 'Save',
+    'action.refresh': 'Refresh',
+
+    // Status
+    'status.active': 'Active',
+    'status.inactive': 'Inactive',
+    'status.pending': 'Pending',
+    'status.accepted': 'Accepted',
+    'status.rejected': 'Rejected',
+    'status.maintenance': 'Maintenance',
+    'status.suspended': 'Suspended',
+    'status.completed': 'Completed',
+
+    // Auth pages
+    'auth.forgotPassword': 'Forgot Password',
+    'auth.resetPassword': 'Reset Password',
+    'auth.enterEmail': 'Enter your email address',
+    'auth.sendResetLink': 'Send Reset Link',
+    'auth.backToLogin': 'Back to Login',
+    'auth.checkEmail': 'Check your email',
+    'auth.resetSent': 'Password reset link sent',
+
+    // Driver management content
+    'driver.noDrivers': 'No drivers yet',
+    'driver.noDriversHint': 'Search and invite drivers to join your organization.',
+    'driver.noRequests': 'No join requests yet',
+    'driver.searchHint': 'Search for available drivers by phone number, license number, or name',
+    'driver.license': 'License',
+    'driver.experience': 'Experience',
+    'driver.rating': 'Rating',
+    'driver.available': 'Available',
+    'driver.busy': 'Busy',
+    'driver.remove': 'Remove',
+    'driver.sendRequest': 'Send Request',
+    'driver.joinRequests': 'Join Requests',
+    'driver.myDrivers': 'My Drivers',
+    'driver.searchDrivers': 'Search Drivers',
+
+    // Fleet content
+    'fleet.noVehicles': 'No vehicles found',
+    'fleet.noVehiclesHint': 'Add your first vehicle to get started',
+    'fleet.registerVehicle': 'Register New Vehicle',
+    'fleet.iotSerial': 'IoT Device Serial Number',
+    'fleet.iotHint': 'Enter the serial number printed on the IoT hardware unit installed in the vehicle.',
+    'fleet.year': 'Year',
+    'fleet.model': 'Model',
+    'fleet.lastSeen': 'Last seen',
+    'fleet.noDevice': 'No device',
+
+    // Schedule content
+    'schedule.newAssignment': 'New Assignment',
+    'schedule.noAssignments': 'No assignments yet',
+    'schedule.noAssignmentsHint': 'Assign a bus and driver to a route to get started',
+    'schedule.operatingDays': 'Operating Days',
+    'schedule.departureTime': 'Departure Time',
+    'schedule.vehicle': 'Vehicle',
+    'schedule.driver': 'Driver',
+    'schedule.route': 'Route',
+    'schedule.notes': 'Notes',
+    'schedule.summary': 'Summary',
+
+    // Reports content
+    'reports.overview': 'Overview',
+    'reports.fleet': 'Fleet',
+    'reports.drivers': 'Drivers',
+    'reports.routes': 'Routes',
+    'reports.assignments': 'Assignments',
+    'reports.totalVehicles': 'Total Vehicles',
+    'reports.activeAssignments': 'Active Assignments',
+    'reports.activeRoutes': 'Active Routes',
+    'reports.totalDistance': 'Total Distance',
+    'reports.avgStops': 'Avg Stops/Route',
+    'reports.iotOnline': 'IoT Devices Online',
+    'reports.pendingInvitations': 'Pending Invitations',
   },
   ne: {
     // Navigation
@@ -167,6 +269,108 @@ const translations = {
     'theme.dark': 'अँध्यारो',
     'language.english': 'English',
     'language.nepali': 'नेपाली',
+
+    // Page titles
+    'page.fleetManagement': 'फ्लिट व्यवस्थापन',
+    'page.routeManagement': 'मार्ग व्यवस्थापन',
+    'page.scheduleManagement': 'बस नियुक्ति र तालिका',
+    'page.driverManagement': 'चालक व्यवस्थापन',
+    'page.adminManagement': 'प्रशासक व्यवस्थापन',
+    'page.orgManagement': 'संस्था व्यवस्थापन',
+    'page.reports': 'रिपोर्ट र विश्लेषण',
+
+    // Fleet
+    'fleet.addVehicle': 'सवारी थप्नुहोस्',
+    'fleet.plateNumber': 'नम्बर प्लेट',
+    'fleet.vehicleType': 'सवारी प्रकार',
+    'fleet.capacity': 'क्षमता',
+    'fleet.status': 'स्थिति',
+    'fleet.iotDevice': 'IoT उपकरण',
+    'fleet.passengers': 'यात्रुहरू',
+
+    // Common actions
+    'action.create': 'सिर्जना गर्नुहोस्',
+    'action.edit': 'सम्पादन गर्नुहोस्',
+    'action.delete': 'मेटाउनुहोस्',
+    'action.search': 'खोज्नुहोस्',
+    'action.invite': 'आमन्त्रण गर्नुहोस्',
+    'action.accept': 'स्वीकार गर्नुहोस्',
+    'action.reject': 'अस्वीकार गर्नुहोस्',
+    'action.cancel': 'रद्द गर्नुहोस्',
+    'action.save': 'सेभ गर्नुहोस्',
+    'action.refresh': 'रिफ्रेस गर्नुहोस्',
+
+    // Status
+    'status.active': 'सक्रिय',
+    'status.inactive': 'निष्क्रिय',
+    'status.pending': 'विचाराधीन',
+    'status.accepted': 'स्वीकृत',
+    'status.rejected': 'अस्वीकृत',
+    'status.maintenance': 'मर्मत',
+    'status.suspended': 'निलम्बित',
+    'status.completed': 'पूर्ण',
+
+    // Auth pages
+    'auth.forgotPassword': 'पासवर्ड बिर्सनुभयो',
+    'auth.resetPassword': 'पासवर्ड रिसेट गर्नुहोस्',
+    'auth.enterEmail': 'आफ्नो इमेल ठेगाना प्रविष्ट गर्नुहोस्',
+    'auth.sendResetLink': 'रिसेट लिंक पठाउनुहोस्',
+    'auth.backToLogin': 'लगइनमा फर्कनुहोस्',
+    'auth.checkEmail': 'आफ्नो इमेल जाँच गर्नुहोस्',
+    'auth.resetSent': 'पासवर्ड रिसेट लिंक पठाइयो',
+
+    // Driver management content
+    'driver.noDrivers': 'अहिलेसम्म कुनै चालक छैन',
+    'driver.noDriversHint': 'आफ्नो संस्थामा सामेल हुन चालकहरू खोज्नुहोस् र आमन्त्रण गर्नुहोस्।',
+    'driver.noRequests': 'अहिलेसम्म कुनै सामेल अनुरोध छैन',
+    'driver.searchHint': 'फोन नम्बर, लाइसेन्स नम्बर, वा नामद्वारा उपलब्ध चालकहरू खोज्नुहोस्',
+    'driver.license': 'लाइसेन्स',
+    'driver.experience': 'अनुभव',
+    'driver.rating': 'मूल्याङ्कन',
+    'driver.available': 'उपलब्ध',
+    'driver.busy': 'व्यस्त',
+    'driver.remove': 'हटाउनुहोस्',
+    'driver.sendRequest': 'अनुरोध पठाउनुहोस्',
+    'driver.joinRequests': 'सामेल अनुरोधहरू',
+    'driver.myDrivers': 'मेरा चालकहरू',
+    'driver.searchDrivers': 'चालकहरू खोज्नुहोस्',
+
+    // Fleet content
+    'fleet.noVehicles': 'कुनै सवारी साधन फेला परेन',
+    'fleet.noVehiclesHint': 'सुरु गर्न आफ्नो पहिलो सवारी साधन थप्नुहोस्',
+    'fleet.registerVehicle': 'नयाँ सवारी साधन दर्ता गर्नुहोस्',
+    'fleet.iotSerial': 'IoT उपकरण क्रम नम्बर',
+    'fleet.iotHint': 'सवारी साधनमा स्थापित IoT हार्डवेयर युनिटमा छापिएको क्रम नम्बर प्रविष्ट गर्नुहोस्।',
+    'fleet.year': 'वर्ष',
+    'fleet.model': 'मोडेल',
+    'fleet.lastSeen': 'अन्तिम पटक देखिएको',
+    'fleet.noDevice': 'कुनै उपकरण छैन',
+
+    // Schedule content
+    'schedule.newAssignment': 'नयाँ नियुक्ति',
+    'schedule.noAssignments': 'अहिलेसम्म कुनै नियुक्ति छैन',
+    'schedule.noAssignmentsHint': 'सुरु गर्न बस र चालकलाई मार्गमा नियुक्त गर्नुहोस्',
+    'schedule.operatingDays': 'सञ्चालन दिनहरू',
+    'schedule.departureTime': 'प्रस्थान समय',
+    'schedule.vehicle': 'सवारी साधन',
+    'schedule.driver': 'चालक',
+    'schedule.route': 'मार्ग',
+    'schedule.notes': 'टिप्पणीहरू',
+    'schedule.summary': 'सारांश',
+
+    // Reports content
+    'reports.overview': 'अवलोकन',
+    'reports.fleet': 'फ्लिट',
+    'reports.drivers': 'चालकहरू',
+    'reports.routes': 'मार्गहरू',
+    'reports.assignments': 'नियुक्तिहरू',
+    'reports.totalVehicles': 'कुल सवारी साधनहरू',
+    'reports.activeAssignments': 'सक्रिय नियुक्तिहरू',
+    'reports.activeRoutes': 'सक्रिय मार्गहरू',
+    'reports.totalDistance': 'कुल दूरी',
+    'reports.avgStops': 'औसत स्टप/मार्ग',
+    'reports.iotOnline': 'IoT उपकरणहरू अनलाइन',
+    'reports.pendingInvitations': 'विचाराधीन आमन्त्रणहरू',
   }
 };
 

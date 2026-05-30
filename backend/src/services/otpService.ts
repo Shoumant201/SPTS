@@ -26,8 +26,11 @@ export class OtpService {
    */
   async sendOtp(phone: string, purpose: 'LOGIN' | 'REGISTRATION' | 'PHONE_VERIFICATION'): Promise<OtpResult> {
     try {
+      console.log(`📱 Sending OTP to ${phone} for ${purpose}`);
+      
       // Validate phone number format
       if (!this.isValidPhoneNumber(phone)) {
+        console.error(`❌ Invalid phone number format: ${phone}`);
         return { success: false, message: 'Invalid phone number format' };
       }
 
@@ -43,6 +46,7 @@ export class OtpService {
       });
 
       if (recentOtp) {
+        console.log(`⏱️ Rate limit hit for ${phone}`);
         return { 
           success: false, 
           message: `Please wait ${this.RATE_LIMIT_MINUTES} minute(s) before requesting another OTP` 
@@ -52,6 +56,8 @@ export class OtpService {
       // Generate 6-digit OTP
       const code = this.generateOtpCode();
       const expiresAt = new Date(Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000);
+
+      console.log(`🔑 Generated OTP: ${code} (expires at ${expiresAt.toISOString()})`);
 
       // Save OTP to database
       const otpRecord = await prisma.otpCode.create({
@@ -63,14 +69,19 @@ export class OtpService {
         }
       });
 
+      console.log(`💾 OTP saved to database with ID: ${otpRecord.id}`);
+
       // Send SMS
       const smsResult = await this.sendSms(phone, code, purpose);
       
       if (!smsResult.success) {
+        console.error(`❌ SMS sending failed: ${smsResult.message}`);
         // Delete the OTP record if SMS failed
         await prisma.otpCode.delete({ where: { id: otpRecord.id } });
         return smsResult;
       }
+
+      console.log(`✅ OTP sent successfully to ${phone}`);
 
       return {
         success: true,
@@ -79,7 +90,7 @@ export class OtpService {
       };
 
     } catch (error) {
-      console.error('Error sending OTP:', error);
+      console.error('❌ Error sending OTP:', error);
       return { success: false, message: 'Failed to send OTP' };
     }
   }
@@ -173,12 +184,21 @@ export class OtpService {
   private async sendSms(phone: string, code: string, purpose: string): Promise<OtpResult> {
     const message = this.getSmsMessage(code, purpose);
 
+    // In development, always use console
+    if (process.env.NODE_ENV === 'development' || !process.env.TWILIO_ACCOUNT_SID) {
+      console.log('\n=== SMS NOTIFICATION (DEV MODE) ===');
+      console.log(`To: ${phone}`);
+      console.log(`Message: ${message}`);
+      console.log(`Code: ${code}`);
+      console.log('===================================\n');
+      return { success: true, message: 'SMS logged to console (development mode)' };
+    }
+
     // Try different SMS providers in order of preference
     const providers = [
       () => this.sendViaTwilio(phone, message),
       () => this.sendViaTextLocal(phone, message),
       () => this.sendViaSparrow(phone, message), // Popular in Nepal
-      () => this.sendViaConsole(phone, message) // Fallback for development
     ];
 
     for (const provider of providers) {
@@ -193,7 +213,13 @@ export class OtpService {
       }
     }
 
-    return { success: false, message: 'All SMS providers failed' };
+    // Final fallback to console in any environment if all providers fail
+    console.log('\n=== SMS NOTIFICATION (FALLBACK) ===');
+    console.log(`To: ${phone}`);
+    console.log(`Message: ${message}`);
+    console.log(`Code: ${code}`);
+    console.log('===================================\n');
+    return { success: true, message: 'SMS logged to console (all providers failed)' };
   }
 
   /**

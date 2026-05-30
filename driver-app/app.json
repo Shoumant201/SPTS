@@ -16,14 +16,19 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "newArchEnabled": false
+      "newArchEnabled": false,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "SPTM needs your location to share your position with dispatch while on shift.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "SPTM needs your location to share your position with dispatch while on shift."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "newArchEnabled": false
+      "newArchEnabled": false,
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,6 +38,10 @@
     "experiments": {
       "turboModules": false,
       "newArchEnabled": false
+    },
+    "updates": {
+      "enabled": false,
+      "fallbackToCacheTimeout": 0
     }
   }
 }

@@ -45,10 +45,22 @@ export const driverProfileApi = {
    * Validate driver license against government database
    */
   validateLicense: async (licenseNumber: string): Promise<ValidateLicenseResponse> => {
-    const response = await axiosInstance.post('/api/driver-management/driver/validate-license', {
-      licenseNumber
-    });
-    return response.data;
+    console.log('📞 API Call: validateLicense', { licenseNumber });
+    try {
+      const response = await axiosInstance.post('/api/driver-management/driver/validate-license', {
+        licenseNumber
+      });
+      console.log('✅ API Response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ API Error:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.config?.headers
+      });
+      throw error;
+    }
   },
 
   /**

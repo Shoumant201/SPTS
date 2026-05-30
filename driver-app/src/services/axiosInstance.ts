@@ -73,6 +73,8 @@ axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     try {
       const { accessToken } = await getTokens();
+      console.log('🔑 Request interceptor - Token:', accessToken ? `${accessToken.substring(0, 20)}...` : 'NO TOKEN');
+      console.log('📍 Request URL:', config.url);
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
@@ -116,7 +118,11 @@ axiosInstance.interceptors.response.use(
         const { refreshToken } = await getTokens();
         
         if (!refreshToken) {
-          throw new Error('No refresh token available');
+          // No refresh token — don't clear storage, just fail this request
+          // The user is likely mid-login and tokens haven't fully persisted yet
+          isRefreshing = false;
+          processQueue(new Error('No refresh token'), null);
+          return Promise.reject(new Error('No refresh token available'));
         }
 
         // Use phone auth refresh endpoint
@@ -131,37 +137,28 @@ axiosInstance.interceptors.response.use(
           await SafeAsyncStorage.setItem('accessToken', data.accessToken);
           await SafeAsyncStorage.setItem('token', data.accessToken);
           
-          // Update the authorization header for the original request
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
           }
           
           processQueue(null, data.accessToken);
-          
           return axiosInstance(originalRequest);
         } else {
           throw new Error('Invalid token response from server');
         }
-      } catch (refreshError) {
+      } catch (refreshError: any) {
         processQueue(refreshError, null);
-        await clearTokens();
-        
-        // You might want to navigate to login screen here
-        // NavigationService.navigate('Login');
-        
+        // Only clear tokens if we actually attempted a refresh (had a token) and it failed
+        if (refreshError.message !== 'No refresh token available') {
+          await clearTokens();
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    // For other 401 errors or if refresh fails
-    if (error.response?.status === 401) {
-      await clearTokens();
-      // Navigate to login screen
-      // NavigationService.navigate('Login');
-    }
-
+    // For other errors, just reject
     return Promise.reject(error);
   }
 );

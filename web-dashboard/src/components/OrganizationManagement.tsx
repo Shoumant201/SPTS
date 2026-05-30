@@ -8,6 +8,7 @@ import {
   CreateOrganizationData, 
   UpdateOrganizationData 
 } from '../services/api/management';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface OrganizationManagementProps {
   userType: 'SUPER_ADMIN' | 'ADMIN';
@@ -61,6 +62,7 @@ const getErrorMessage = (err: any): string => {
 };
 
 export const OrganizationManagement: React.FC<OrganizationManagementProps> = ({ userType }) => {
+  const { t } = useLanguage();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -187,8 +189,8 @@ export const OrganizationManagement: React.FC<OrganizationManagementProps> = ({ 
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Organization Management</h2>
-          <p className="text-gray-500">Manage transport organizations</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('page.orgManagement')}</h2>
+          <p className="text-gray-500 dark:text-gray-400">{t('nav.organizations')}</p>
         </div>
         <button
           onClick={openCreateModal}
