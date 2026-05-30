@@ -262,6 +262,9 @@ coverage-reports/
 !backend/docs/README.md
 !backend/prisma/MIGRATION_GUIDE.md
 !backend/DEPLOYMENT_CHECKLIST.md
+!DEPLOYMENT_GUIDE.md
+!DEPLOYMENT_CHECKLIST.md
+!DEPLOYMENT_SUMMARY.md
 
 # Scripts
 *.sh
