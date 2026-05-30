@@ -54,7 +54,10 @@ export const parseApiError = (error: any): string => {
         case 500:
             return parseServerError(data);
         default:
-            return data?.error?.message || data?.message || `Server error (${status}). Please try again.`;
+            if (typeof data.error === 'object' && data.error !== null) {
+                return data.error.message || `Server error (${status}). Please try again.`;
+            }
+            return (typeof data.error === 'string' ? data.error : data.message) || `Server error (${status}). Please try again.`;
     }
 };
 
