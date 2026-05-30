@@ -123,14 +123,42 @@ SWAGGER_ENABLED=true
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-### Step 5: Run Database Migrations
+### Step 5: Database Seeding
 
-After deployment, open the **Shell** tab in Render and run:
+**Important**: Render's free tier doesn't provide shell access. Use HTTP endpoints for seeding.
 
-```bash
-npx prisma migrate deploy
-npx prisma db seed
-```
+See **[RENDER_FREE_TIER_SEEDING.md](./RENDER_FREE_TIER_SEEDING.md)** for detailed instructions.
+
+**Quick Steps:**
+
+1. **Add SEED_KEY** to Render environment variables:
+   - Go to Environment tab in Render
+   - Add: `SEED_KEY` = `your-secret-seed-key-2024`
+   - Save (service will redeploy)
+
+2. **Check database status:**
+   ```bash
+   curl https://your-backend.onrender.com/api/seed/status
+   ```
+
+3. **Create super admin:**
+   ```bash
+   curl -X POST https://your-backend.onrender.com/api/seed/super-admin \
+     -H "Content-Type: application/json" \
+     -d '{
+       "email": "superadmin@sptm.com",
+       "password": "SecurePass123!",
+       "name": "Super Admin",
+       "seedKey": "your-secret-seed-key-2024"
+     }'
+   ```
+
+4. **Seed demo data (optional):**
+   ```bash
+   curl -X POST https://your-backend.onrender.com/api/seed/demo-data \
+     -H "Content-Type: application/json" \
+     -d '{"seedKey": "your-secret-seed-key-2024"}'
+   ```
 
 ### Step 6: Verify Deployment
 

@@ -27,6 +27,7 @@ import tripRoutes from './routes/tripRoutes';
 import busRoutes from './routes/busRoutes';
 import walletRoutes from './routes/walletRoutes';
 import discountRoutes from './routes/discountRoutes';
+import seedRoutes from './routes/seedRoutes';
 
 // Import Swagger configuration
 import { swaggerConfig, getEnvironmentConfig } from './config/swagger';
@@ -230,6 +231,9 @@ app.use('/api/wallet', walletRoutes);
 
 // Discount system routes
 app.use('/api/discounts', discountRoutes);
+
+// Database seeding routes (protected by SEED_KEY)
+app.use('/api/seed', seedRoutes);
 
 // IoT device data endpoint (no user auth — uses device token)
 app.post('/api/iot/:deviceId/data', async (req: any, res: any) => {

@@ -54,7 +54,9 @@ services:
         value: SPTM
       - key: SWAGGER_ENABLED
         value: true
-    healthCheckPath: /api/health
+      - key: SEED_KEY
+        sync: false
+    healthCheckPath: /health
 
 databases:
   - name: sptm-db
