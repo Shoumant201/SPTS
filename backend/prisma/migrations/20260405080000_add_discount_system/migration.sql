@@ -1,5 +1,8 @@
--- CreateEnum
-CREATE TYPE "DiscountType" AS ENUM ('STUDENT', 'ELDERLY', 'DISABLED', 'VETERAN', 'LOW_INCOME');
+-- Alter existing DiscountType enum to add new values
+-- Note: DiscountType already exists from migration 20251129074248_multi_tier_auth_system
+-- We need to add VETERAN and LOW_INCOME, and remove NONE
+ALTER TYPE "DiscountType" ADD VALUE IF NOT EXISTS 'VETERAN';
+ALTER TYPE "DiscountType" ADD VALUE IF NOT EXISTS 'LOW_INCOME';
 
 -- CreateEnum
 CREATE TYPE "DiscountStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'EXPIRED', 'SUSPENDED');
