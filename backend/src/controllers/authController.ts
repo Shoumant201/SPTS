@@ -95,7 +95,7 @@ export class UserAuthController {
       // Generate tokens using auth service
       const tokens = authService.generateTokens({
         id: user.id,
-        email: user.email || user.phone,
+        email: user.email || user.phone || '',
         role: user.role,
         userType: 'USER',
         organizationId: user.organizationId || undefined
@@ -320,7 +320,7 @@ export class UserAuthController {
 
       // Verify current password using auth service
       const authResult = await authService.authenticateUser(
-        user.email, 
+        user.email || user.phone || '', 
         currentPassword,
         user.role
       );

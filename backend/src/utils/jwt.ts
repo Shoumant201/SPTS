@@ -132,7 +132,7 @@ export const refreshTokens = async (refreshToken: string): Promise<TokenPair> =>
     // Generate new tokens
     const newTokens = generateTokens({
       id: userData.id,
-      email: userData.email,
+      email: userData.email || '',
       role: userData.role,
       userType: decoded.userType as 'SUPER_ADMIN' | 'ADMIN' | 'ORGANIZATION' | 'USER',
       organizationId: decoded.organizationId

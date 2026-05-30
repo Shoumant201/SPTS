@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
-import prisma from '../utils/prisma';
+import { Response, Request } from 'express';
+import { AuthRequest } from '../middleware/auth';
+import { prisma } from '../utils/prisma';
 
 // Apply for discount
-export const applyForDiscount = async (req: Request, res: Response) => {
+export const applyForDiscount = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
@@ -86,9 +87,9 @@ export const applyForDiscount = async (req: Request, res: Response) => {
 };
 
 // Get user's discount applications
-export const getMyApplications = async (req: Request, res: Response) => {
+export const getMyApplications = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
@@ -114,9 +115,9 @@ export const getMyApplications = async (req: Request, res: Response) => {
 };
 
 // Get active discount
-export const getActiveDiscount = async (req: Request, res: Response) => {
+export const getActiveDiscount = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
@@ -145,9 +146,9 @@ export const getActiveDiscount = async (req: Request, res: Response) => {
 };
 
 // Get application by ID
-export const getApplicationById = async (req: Request, res: Response) => {
+export const getApplicationById = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     if (!userId) {
@@ -188,9 +189,9 @@ export const getApplicationById = async (req: Request, res: Response) => {
 };
 
 // Cancel application (only if pending)
-export const cancelApplication = async (req: Request, res: Response) => {
+export const cancelApplication = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     if (!userId) {
@@ -286,9 +287,9 @@ export const getAllApplications = async (req: Request, res: Response) => {
 };
 
 // Admin: Review application
-export const reviewApplication = async (req: Request, res: Response) => {
+export const reviewApplication = async (req: AuthRequest, res: Response) => {
   try {
-    const reviewerId = req.user?.userId;
+    const reviewerId = req.user?.id;
     const { id } = req.params;
     const { status, reviewNotes } = req.body;
 
@@ -353,9 +354,9 @@ export const reviewApplication = async (req: Request, res: Response) => {
 };
 
 // Calculate fare with discount
-export const calculateFareWithDiscount = async (req: Request, res: Response) => {
+export const calculateFareWithDiscount = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     const { baseFare } = req.body;
 
     if (!userId) {
