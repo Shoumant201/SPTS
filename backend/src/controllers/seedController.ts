@@ -90,16 +90,28 @@ export class SeedController {
         routes: []
       };
 
+      // Create demo admin first (needed for organizations)
+      const admin = await prisma.admin.create({
+        data: {
+          email: 'admin@sptm.com',
+          password: await hashPassword('Admin123!'),
+          name: 'System Administrator',
+          isActive: true,
+          createdBy: 'system'
+        }
+      });
+      results.admins.push(admin);
+
       // Create demo organizations
       const org1 = await prisma.organization.create({
         data: {
           email: 'citybus@example.com',
           password: await hashPassword('CityBus123!'),
           name: 'City Bus Services',
-          contactPerson: 'John Manager',
           phone: '+1234567890',
           address: '123 Main St, City',
-          isActive: true
+          isActive: true,
+          createdBy: admin.id
         }
       });
       results.organizations.push(org1);
@@ -109,24 +121,13 @@ export class SeedController {
           email: 'metrotrans@example.com',
           password: await hashPassword('Metro123!'),
           name: 'Metro Transit',
-          contactPerson: 'Jane Director',
           phone: '+1234567891',
           address: '456 Transit Ave, City',
-          isActive: true
+          isActive: true,
+          createdBy: admin.id
         }
       });
       results.organizations.push(org2);
-
-      // Create demo admin
-      const admin = await prisma.admin.create({
-        data: {
-          email: 'admin@sptm.com',
-          password: await hashPassword('Admin123!'),
-          name: 'System Administrator',
-          isActive: true
-        }
-      });
-      results.admins.push(admin);
 
       // Create demo drivers
       const driver1 = await prisma.user.create({
@@ -184,7 +185,7 @@ export class SeedController {
       const vehicle1 = await prisma.vehicle.create({
         data: {
           plateNumber: 'BUS-001',
-          type: 'STANDARD',
+          type: 'BUS',
           capacity: 50,
           organizationId: org1.id,
           status: 'ACTIVE'
@@ -195,7 +196,7 @@ export class SeedController {
       const vehicle2 = await prisma.vehicle.create({
         data: {
           plateNumber: 'BUS-002',
-          type: 'STANDARD',
+          type: 'BUS',
           capacity: 45,
           organizationId: org2.id,
           status: 'ACTIVE'
@@ -211,14 +212,16 @@ export class SeedController {
           startPoint: 'Central Station',
           endPoint: 'Downtown Plaza',
           distance: 15.5,
-          estimatedDuration: 45,
+          basePrice: 50,
           organizationId: org1.id,
           isActive: true,
-          stops: JSON.stringify([
-            { name: 'Central Station', lat: 40.7128, lng: -74.0060, order: 1 },
-            { name: 'City Hall', lat: 40.7129, lng: -74.0061, order: 2 },
-            { name: 'Downtown Plaza', lat: 40.7130, lng: -74.0062, order: 3 }
-          ])
+          stops: {
+            create: [
+              { name: 'Central Station', lat: 40.7128, lng: -74.0060, order: 1 },
+              { name: 'City Hall', lat: 40.7129, lng: -74.0061, order: 2 },
+              { name: 'Downtown Plaza', lat: 40.7130, lng: -74.0062, order: 3 }
+            ]
+          }
         }
       });
       results.routes.push(route1);
@@ -230,14 +233,16 @@ export class SeedController {
           startPoint: 'Airport Terminal',
           endPoint: 'City Center',
           distance: 25.0,
-          estimatedDuration: 60,
+          basePrice: 100,
           organizationId: org2.id,
           isActive: true,
-          stops: JSON.stringify([
-            { name: 'Airport Terminal', lat: 40.6413, lng: -73.7781, order: 1 },
-            { name: 'Highway Exit 5', lat: 40.6500, lng: -73.7800, order: 2 },
-            { name: 'City Center', lat: 40.7128, lng: -74.0060, order: 3 }
-          ])
+          stops: {
+            create: [
+              { name: 'Airport Terminal', lat: 40.6413, lng: -73.7781, order: 1 },
+              { name: 'Highway Exit 5', lat: 40.6500, lng: -73.7800, order: 2 },
+              { name: 'City Center', lat: 40.7128, lng: -74.0060, order: 3 }
+            ]
+          }
         }
       });
       results.routes.push(route2);
