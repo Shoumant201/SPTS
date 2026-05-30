@@ -181,12 +181,17 @@ See **[RENDER_FREE_TIER_SEEDING.md](./RENDER_FREE_TIER_SEEDING.md)** for detaile
 
 1. Click **"Add New..."** → **"Project"**
 2. Import your GitHub repository: `SPTS`
-3. Configure:
+3. **IMPORTANT**: Configure Root Directory:
+   - Click **"Edit"** next to Root Directory
+   - Set to: `web-dashboard`
+   - This tells Vercel where your Next.js app is located
+4. Other settings (auto-detected):
    - **Framework Preset**: Next.js
-   - **Root Directory**: `web-dashboard`
    - **Build Command**: `npm run build`
    - **Output Directory**: `.next`
    - **Install Command**: `npm install`
+
+**Note**: The `vercel.json` file is already configured to handle the subdirectory structure.
 
 ### Step 3: Configure Environment Variables
 
