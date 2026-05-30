@@ -6,12 +6,14 @@ import L from 'leaflet';
 import axiosInstance from '../services/axiosInstance';
 
 // Fix Leaflet default icons in Next.js
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
+}
 
 const busIcon = L.divIcon({
   html: `<div style="background:#2563eb;color:white;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)">🚌</div>`,
@@ -44,12 +46,22 @@ interface DriverLocation {
 function AutoCenter({ locations }: { locations: DriverLocation[] }) {
   const map = useMap();
   const centered = useRef(false);
+  
   useEffect(() => {
     if (!centered.current && locations.length > 0) {
       map.setView([locations[0].latitude, locations[0].longitude], 13);
       centered.current = true;
     }
   }, [locations, map]);
+  
+  // Invalidate size when component mounts to fix rendering issues
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [map]);
+  
   return null;
 }
 

@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Polyline, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { RouteStop } from '../services/api/routes';
 
 // Fix Leaflet default marker icons in Next.js
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
+}
 
 // Custom numbered marker
 const createNumberedIcon = (number: number, isFirst: boolean, isLast: boolean) => {
@@ -34,6 +36,20 @@ const MapClickHandler: React.FC<MapClickHandlerProps> = ({ onMapClick }) => {
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
   });
+  return null;
+};
+
+// Component to fix map rendering issues
+const MapSizeFixer: React.FC = () => {
+  const map = useMap();
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [map]);
+  
   return null;
 };
 
@@ -76,6 +92,7 @@ const RouteMapEditor: React.FC<RouteMapEditorProps> = ({ stops, onStopsChange })
         />
 
         <MapClickHandler onMapClick={handleMapClick} />
+        <MapSizeFixer />
 
         {/* Draw route line */}
         {polylinePoints.length > 1 && (
