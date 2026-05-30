@@ -162,3 +162,62 @@ html {
 .dark thead { background-color: #0f172a !important; }
 .dark th { color: #94a3b8 !important; }
 .dark td { color: #cbd5e1 !important; }
+
+/* ============================================
+   LEAFLET MAP FIXES
+   Ensures maps render properly in all contexts
+   ============================================ */
+
+/* Ensure Leaflet container takes full size */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0;
+}
+
+/* Fix for Leaflet tiles not loading */
+.leaflet-tile-container {
+  pointer-events: auto;
+}
+
+/* Ensure map controls are visible */
+.leaflet-control-zoom {
+  border: 2px solid rgba(0,0,0,0.2) !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: white !important;
+  color: #333 !important;
+}
+
+.dark .leaflet-control-zoom a {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #475569 !important;
+}
+
+/* Fix popup styling */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .leaflet-popup-tip {
+  background-color: #1e293b !important;
+}
+
+/* Ensure attribution is visible but not intrusive */
+.leaflet-control-attribution {
+  font-size: 10px !important;
+  opacity: 0.7;
+}
+
+.dark .leaflet-control-attribution {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  color: #94a3b8 !important;
+}

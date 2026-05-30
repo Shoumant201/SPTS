@@ -113,9 +113,9 @@ export const LiveFleetMap: React.FC = () => {
         </div>
       </div>
 
-      <div className="h-72 relative">
+      <div className="h-96 md:h-[500px] relative w-full">
         {loading ? (
-          <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-dark-700">
+          <div className="h-full w-full flex items-center justify-center bg-gray-50 dark:bg-dark-700">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
               <p className="text-sm text-gray-500">Loading live positions...</p>
@@ -125,8 +125,9 @@ export const LiveFleetMap: React.FC = () => {
           <MapContainer
             center={defaultCenter}
             zoom={12}
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: '100%', width: '100%', minHeight: '400px' }}
             zoomControl={true}
+            scrollWheelZoom={true}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
