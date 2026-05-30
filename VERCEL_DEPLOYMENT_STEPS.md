@@ -1,28 +1,29 @@
 # Vercel Deployment Steps for Web Dashboard
 
 ## Issue Fixed
-Updated `vercel.json` to use proper Next.js 14 configuration instead of legacy builds/routes.
+Removed `vercel.json` - Vercel will auto-detect Next.js when Root Directory is configured properly.
 
 ## Required Vercel Configuration
 
-### Option 1: Configure in Vercel Dashboard (Recommended)
-1. Go to your Vercel project settings
-2. Navigate to **Settings** → **General**
-3. Find **Root Directory** section
-4. Set Root Directory to: `web-dashboard`
-5. Click **Save**
-6. Trigger a new deployment (it should auto-deploy from the latest push)
+### Configure in Vercel Dashboard (REQUIRED)
 
-### Option 2: Use vercel.json (Already configured)
-The `vercel.json` file has been updated with:
-```json
-{
-  "buildCommand": "cd web-dashboard && npm install && npm run build",
-  "outputDirectory": "web-dashboard/.next",
-  "installCommand": "cd web-dashboard && npm install",
-  "framework": "nextjs"
-}
-```
+**IMPORTANT**: You MUST configure the Root Directory in Vercel dashboard for this to work.
+
+1. Go to your Vercel project: https://vercel.com/dashboard
+2. Click on your project (SPTS)
+3. Go to **Settings** → **General**
+4. Find **Root Directory** section
+5. Click **Edit**
+6. Set Root Directory to: `web-dashboard`
+7. Click **Save**
+8. Go to **Deployments** tab
+9. Click **Redeploy** on the latest deployment (or push a new commit)
+
+Vercel will now:
+- Auto-detect Next.js framework
+- Run `npm install` in the web-dashboard directory
+- Run `npm run build` automatically
+- Deploy the `.next` output directory
 
 ## Environment Variables to Add in Vercel
 
