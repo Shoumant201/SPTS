@@ -28,6 +28,7 @@ import busRoutes from './routes/busRoutes';
 import walletRoutes from './routes/walletRoutes';
 import discountRoutes from './routes/discountRoutes';
 import seedRoutes from './routes/seedRoutes';
+import nfcRoutes from './routes/nfcRoutes';
 
 // Import Swagger configuration
 import { swaggerConfig, getEnvironmentConfig } from './config/swagger';
@@ -279,6 +280,9 @@ app.use('/api/discounts', discountRoutes);
 
 // Database seeding routes (protected by SEED_KEY)
 app.use('/api/seed', seedRoutes);
+
+// NFC tap-to-ride routes
+app.use('/api/nfc', nfcRoutes);
 
 // IoT device data endpoint (no user auth — uses device token)
 app.post('/api/iot/:deviceId/data', async (req: any, res: any) => {

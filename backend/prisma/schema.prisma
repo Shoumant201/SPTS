@@ -61,6 +61,7 @@ model User {
   email                String?   // Optional for mobile users
   password             String?   // Optional - not used for phone auth
   name                 String?
+  nfcId                String?   @unique // NFC card/phone ID for tap-to-ride
   role                 UserRole  @default(PASSENGER) // DRIVER or PASSENGER only
   isActive             Boolean   @default(true)
   isPhoneVerified      Boolean   @default(false)
