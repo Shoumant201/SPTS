@@ -41,7 +41,7 @@ CREATE INDEX "DiscountApplication_status_idx" ON "DiscountApplication"("status")
 CREATE INDEX "DiscountApplication_type_idx" ON "DiscountApplication"("type");
 
 -- AddForeignKey
-ALTER TABLE "DiscountApplication" ADD CONSTRAINT "DiscountApplication_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "DiscountApplication" ADD CONSTRAINT "DiscountApplication_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "DiscountApplication" ADD CONSTRAINT "DiscountApplication_reviewedBy_fkey" FOREIGN KEY ("reviewedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "DiscountApplication" ADD CONSTRAINT "DiscountApplication_reviewedBy_fkey" FOREIGN KEY ("reviewedBy") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
