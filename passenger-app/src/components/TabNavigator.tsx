@@ -5,15 +5,21 @@ import {
   View,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
 import { PhoneUser } from '../services/api/phoneAuth';
 import HomeScreen from '../screens/HomeScreen';
 import RoutesScreen from '../screens/routes/RoutesScreen';
-import LiveBusMapScreen from '../screens/tracking/LiveBusMapScreen';
 import WalletScreen from '../screens/wallet/WalletScreen';
 import DiscountsScreen from '../screens/discounts/DiscountsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import TripHistoryScreen from '../screens/trips/TripHistoryScreen';
+
+// Conditionally import LiveBusMapScreen only on native platforms
+let LiveBusMapScreen: any = null;
+if (Platform.OS !== 'web') {
+  LiveBusMapScreen = require('../screens/tracking/LiveBusMapScreen').default;
+}
 
 interface TabNavigatorProps {
   user: PhoneUser;
@@ -51,7 +57,21 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ user, onLogout }) => {
       case 'routes':
         return <RoutesScreen />;
       case 'map':
-        return <LiveBusMapScreen />;
+        if (Platform.OS === 'web') {
+          return (
+            <View style={styles.webNotSupported}>
+              <Text style={styles.webNotSupportedText}>🗺️</Text>
+              <Text style={styles.webNotSupportedTitle}>Live Map</Text>
+              <Text style={styles.webNotSupportedMessage}>
+                Live bus tracking is only available on mobile devices.
+              </Text>
+              <Text style={styles.webNotSupportedMessage}>
+                Please use the mobile app to view live bus locations.
+              </Text>
+            </View>
+          );
+        }
+        return LiveBusMapScreen ? <LiveBusMapScreen /> : null;
       case 'wallet':
         return <WalletScreen />;
       case 'discounts':
@@ -159,6 +179,30 @@ const styles = StyleSheet.create({
   navTextActive: {
     color: '#007AFF',
     fontWeight: '600',
+  },
+  webNotSupported: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+    backgroundColor: '#f8f9fa',
+  },
+  webNotSupportedText: {
+    fontSize: 64,
+    marginBottom: 20,
+  },
+  webNotSupportedTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 16,
+  },
+  webNotSupportedMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 8,
+    lineHeight: 24,
   },
 });
 
